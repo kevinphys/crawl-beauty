@@ -14,5 +14,4 @@ pip install schedule
 
 License
 -----
-The MIT License.
-And if you want, you can follow "Beerware".
+The MIT License and also welcome to follow "Beerware".
