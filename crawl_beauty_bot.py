@@ -63,9 +63,6 @@ def find_all_likes(content, num_sticky):
         else:
             break
     
-    for i in range(num_sticky):
-        like_with_url.pop()
-    
     return like_with_url
 
 def prev_page(content):
@@ -107,6 +104,10 @@ def crawl_beauty(seed, num_sticky, min_likes):
     content = get_page(seed)
     like_with_url = find_all_likes(content, num_sticky)
     
+    # Remove default stickies at first page
+    for i in range(num_sticky):
+        like_with_url.pop()
+
     most_num_like = 0
     url_to_find = ''
 
