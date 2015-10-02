@@ -18,6 +18,7 @@ bot_name = "YOUR_BOT_NAME"
 channel_name = "#YOUR-CHANNEL-NAME"
 icon = ":monkey_face:"  # Change icon whichever you want
 
+found_url = []
 
 def get_page(url):
     try:
@@ -78,6 +79,12 @@ def prev_page(content):
 
     return prev_url
 
+def check_jpg(image_url):
+    if image_url.find('.jpg') == -1 and image_url.find('.JPG') and image_url.find('.PNG') and image_url.find('.png'):
+        return False
+    else:
+        return True
+
 def find_pictures(content):
     title_find = content.find('<title>')
     title_start_quote = content.find('>', title_find)
@@ -91,8 +98,10 @@ def find_pictures(content):
 
     image_url = content[image_url_start+1: image_url_end]
 
-    return title, image_url
+    if not check_jpg(image_url):
+        image_url = image_url + '.jpg'
 
+    return title, image_url
 
 def crawl_beauty(seed, num_sticky, min_likes):
     content = get_page(seed)
@@ -103,7 +112,7 @@ def crawl_beauty(seed, num_sticky, min_likes):
 
     while True:
         for i in like_with_url:
-            if i[0] > most_num_like:
+            if i[0] > most_num_like and i[1] not in found_url:
                 most_num_like = i[0]
                 url_to_find = i[1]
         if most_num_like < min_likes:
@@ -112,7 +121,9 @@ def crawl_beauty(seed, num_sticky, min_likes):
         else:
             break
 
+    found_url.append(url_to_find)
     title, image_url = find_pictures(get_page(url_to_find))
+
     return title, image_url
 
 
@@ -126,7 +137,7 @@ def run_bot():
 
 
 # How often should bot crawl
-# (default in 5 hours)
+# (default run in 5 hours)
 schedule.every(5).hours.do(run_bot)
 
 
