@@ -12,6 +12,10 @@ pip install requests
 pip install schedule
 ```
 
+In Slack
+-----
+You have to get [Incoming Webhooks](https://api.slack.com/incoming-webhooks) link of your team channel.
+
 License
 -----
 The MIT License and also welcome to follow "Beerware".
