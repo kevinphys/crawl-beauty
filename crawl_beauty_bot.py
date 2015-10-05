@@ -3,11 +3,12 @@ import json
 import schedule
 import time
 import random
+import gc
 
 # ------ web crawling term ------
 import urllib
 num_sticky = 2          # Default stickies in PTT beauty
-min_likes = 15          # Posts' "likes" must be larger than this
+min_likes = 20          # Posts' "likes" must be larger than this
 
 # ------ Webhook term ------
 # All info you can find in your slack team on https://api.slack.com/incoming-webhooks
@@ -33,7 +34,7 @@ def get_page(url):
 def find_likes(content):
     like_find = content.find('</span></div>')
     if like_find == -1:
-        return None, 0
+        return 0, None, None
 
     start_like_quote = content.find('>', like_find-5)
     end_like_quote = content.find('<', start_like_quote+1)    
@@ -77,10 +78,10 @@ def prev_page(content):
     return prev_url
 
 def check_jpg(image_url):
-    if image_url.find('.jpg') == -1 and image_url.find('.JPG') and image_url.find('.PNG') and image_url.find('.png'):
+    if image_url.find('.html') != -1:
         return False
-    else:
-        return True
+    elif image_url.find('.jpg') == -1 and image_url.find('.JPG') and image_url.find('.PNG') and image_url.find('.png'):
+        return image_url + '.jpg'
 
 def find_pictures(content):
     title_find = content.find('<title>')
@@ -95,8 +96,7 @@ def find_pictures(content):
 
     image_url = content[image_url_start+1: image_url_end]
 
-    if not check_jpg(image_url):
-        image_url = image_url + '.jpg'
+    image_url = check_jpg(image_url)
 
     return title, image_url
 
@@ -113,7 +113,7 @@ def crawl_beauty(seed, num_sticky, min_likes):
 
     while True:
         for i in like_with_url:
-            if i[0] > most_num_like and i[1] not in found_url:
+            if i[0] > most_num_like and i[1] not in found_url and find_pictures(get_page(i[1]))[1]:
                 most_num_like = i[0]
                 url_to_find = i[1]
         if most_num_like < min_likes:
@@ -145,3 +145,4 @@ schedule.every(5).hours.do(run_bot)
 while True:
     schedule.run_pending()
     time.sleep(1)
+    gc.collect()
